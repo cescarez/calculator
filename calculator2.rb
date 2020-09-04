@@ -57,7 +57,14 @@ def evaluate(equation)
   end
   print "evaluation result: " ######################
   p result #################
-  return result.to_s
+  # p result.class
+  # p result.to_i == result
+  # p result.to_i == 100
+  # p result.to_i.nonzero?
+  # p (result == Integer || result.class == Float)
+  # # puts (result.to_i == Integer || result.to_f.class == Float)
+  # p result.to_s == "0"
+  return result
 end
 ################NEED TO DRY PARENS_EVAL AND POW_EVAL METHODS
 def parens_eval(equation)
@@ -85,8 +92,11 @@ def pow_eval(equation)
   ####I'm sure this could be better
   # num1 = equation.split('^').first.last
   # num2 = equation.split('^').last.first
+  # ###############fix parsing
   num1 = equation.split('^').first
   num2 = equation.split('^').last
+  p num1
+  p num2
   return result = exponent(float_or_int(num1, num2)).to_s
 end
 
@@ -102,17 +112,18 @@ equation = "10 / (8 - 6) + 3 ^ 2"
 # equation = "10 / (8 - 6) + 3"
 # equation = "10 / (8 - 6)"
 # equation = "(10 * 2) / 4"
-
-while equation.class != Integer || equation.class != Float
-  if equation.include?('(') || equation.include?('^')
-    while equation.include?('(')
-      equation = parens_eval(equation)
+result = equation
+# until (result.to_i.nonzero?) || (result.class == Integer || result.class == Float) || result.to_s == "0"
+until !result.include?(' ')
+  if result.include?('(') || result.include?('^')
+    while result.include?('(')
+      result = parens_eval(result)
     end
-    while equation.include?('^')
-      equation = pow_eval(equation)
+    while result.include?('^')
+      result = pow_eval(result)
     end
   end
-result = evaluate(equation)
+  result = evaluate(result)
 end
 
 puts equation + " = " + result.to_s
