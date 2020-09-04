@@ -39,18 +39,22 @@ end
 
 def evaluate(equation)
   if equation.to_s.include?(' ')
-    num1, operator, num2 = equation.split(' ')
-    case operator
-    # when '^'
-    #   result = exponent(float_or_int(num1, num2))
-    when '*', 'multiply'
-      result = multiply(float_or_int(num1, num2))
-    when '/', 'divide'
-      result = divide(float_or_int(num1, num2))
-    when '+', 'add'
-      result = add(float_or_int(num1, num2))
-    when '-', 'subtract'
-      result = subtract(float_or_int(num1, num2))
+    while equation.split(' ').length > 3
+      ##########need to write recursive function to call evaluation for longer equations
+      num1, operator, num2 = equation.split(' ')
+      p num1
+      p operator
+      p num2
+      case operator
+      when '*', 'multiply'
+        result = multiply(float_or_int(num1, num2))
+      when '/', 'divide'
+        result = divide(float_or_int(num1, num2))
+      when '+', 'add'
+        result = add(float_or_int(num1, num2))
+      when '-', 'subtract'
+        result = subtract(float_or_int(num1, num2))
+      end
     end
   else
     result = equation
@@ -93,11 +97,27 @@ def pow_eval(equation)
   # num1 = equation.split('^').first.last
   # num2 = equation.split('^').last.first
   # ###############fix parsing
-  num1 = equation.split('^').first
-  num2 = equation.split('^').last
-  p num1
-  p num2
-  return result = exponent(float_or_int(num1, num2)).to_s
+  num1 = equation.split('^').first.strip[-1]
+  num2 = equation.split('^').last.strip[0]
+  equation_to_evaluate_result = exponent(float_or_int(num1, num2)).to_s
+
+  if equation.split('^').first.strip[0] != equation.split('^').first.strip[-1]
+    ##closing range index = -3 to account for trialing space
+    equation_prepend = equation.split('^').first[0..-3]
+  end
+  if equation.split('^').last.strip[0] != equation.split('^').last.strip[-1]
+    ##starting index = 2 to account for leading space
+    equation_append = equation.split('^').last[2..-1]
+  end
+  if equation_prepend && equation_append
+    new_equation = equation_prepend + equation_to_evaluate_result.to_s + equation_append
+  elsif equation_prepend && !equation_append
+    new_equation = equation_prepend + equation_to_evaluate_result.to_s
+  elsif !equation_prepend && equation_append
+    new_equation = equation_to_evaluate_result.to_s + equation_append
+  end
+  puts "New equation: #{new_equation}"
+  return new_equation.to_s
 end
 
 
@@ -114,7 +134,7 @@ equation = "10 / (8 - 6) + 3 ^ 2"
 # equation = "(10 * 2) / 4"
 result = equation
 # until (result.to_i.nonzero?) || (result.class == Integer || result.class == Float) || result.to_s == "0"
-until !result.include?(' ')
+until !result.to_s.include?(' ')
   if result.include?('(') || result.include?('^')
     while result.include?('(')
       result = parens_eval(result)
