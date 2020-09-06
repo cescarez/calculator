@@ -39,26 +39,41 @@ end
 
 def evaluate(equation)
   if equation.to_s.include?(' ')
-    while equation.split(' ').length > 3
-      ##########need to write recursive function to call evaluation for longer equations
-      num1, operator, num2 = equation.split(' ')
-      p num1
-      p operator
-      p num2
-      case operator
-      when '*', 'multiply'
-        result = multiply(float_or_int(num1, num2))
-      when '/', 'divide'
-        result = divide(float_or_int(num1, num2))
-      when '+', 'add'
-        result = add(float_or_int(num1, num2))
-      when '-', 'subtract'
-        result = subtract(float_or_int(num1, num2))
-      end
+    num1, operator, num2 = parse_equation(equation, ' ', ' ')
+    if num1.strip.class != Integer
+
     end
-  else
-    result = equation
-  end
+    if operator.strip.length > 1
+
+    end
+    if num2.strip.length > 1
+
+    end
+
+    num1, operator, num2 = equation.split(' ')
+    ##########need to write recursive function to call evaluation for longer equations
+    print "num1: "
+    p num1
+    print "operator: "
+    p operator
+    print "num2: "
+    p num2
+    ###################################
+    case operator
+    when '*', 'multiply'
+      result = multiply(float_or_int(num1, num2))
+    when '/', 'divide'
+      result = divide(float_or_int(num1, num2))
+    when '+', 'add'
+      result = add(float_or_int(num1, num2))
+    when '-', 'subtract'
+      result = subtract(float_or_int(num1, num2))
+    end
+    puts equation.split(' ').length > 3 ############################
+    while equation.split(' ').length > 3
+      evaluate(num1, num2)
+    end
+ end
   print "evaluation result: " ######################
   p result #################
   # p result.class
@@ -71,35 +86,44 @@ def evaluate(equation)
   return result
 end
 ################NEED TO DRY PARENS_EVAL AND POW_EVAL METHODS
-def parens_eval(equation)
-  if equation.split('(').first
-    equation_prepend, equation_to_evaluate = equation.split('(')
+def parse_equation(equation, prepend_char_delimiter, append_char_delimiter)
+  if equation.split(prepend_char_delimiter).first
+    equation_prepend, equation_to_evaluate = equation.split(prepend_char_delimiter)
   end
-  if equation.split(')').last
-    equation_to_evaluate, equation_append = equation_to_evaluate.split(')')
+  if equation.split(append_char_delimiter).last
+    equation_to_evaluate, equation_append = equation_to_evaluate.split(append_char_delimiter)
   end
-  puts "equation to be evaluated: #{equation_to_evaluate}" ##############################
-  equation_to_evaluate_result = evaluate(equation_to_evaluate)
-  puts "sub-equation result: #{equation_to_evaluate_result}" ##############################
+  return equation_prepend + ";" + equation_to_evaluate + ";" + equation_append
+end
+
+def concat_equation(equation_prepend, evaluated_result, equation_append)
+  p equation_prepend
+  p evaluated_result
+  p equation_append
   if equation_prepend && equation_append
-    new_equation = equation_prepend + equation_to_evaluate_result.to_s + equation_append
+    return new_equation = equation_prepend + evaluated_result + equation_append
   elsif equation_prepend && !equation_append
-    new_equation = equation_prepend + equation_to_evaluate_result.to_s
+    return new_equation = equation_prepend + evaluated_result
   elsif !equation_prepend && equation_append
-    new_equation = equation_to_evaluate_result.to_s + equation_append
+    return new_equation = evaluated_result + equation_append
   end
+end
+
+def parens_eval(equation)
+  equation_prepend, equation_to_be_evaluated, equation_append = parse_equation(equation, '(', ')').split(';')
+  puts "equation to be evaluated: #{equation_to_be_evaluated}" ##############################
+  evaluated_result = evaluate(equation_to_be_evaluated)
+  puts "sub-equation result: #{evaluated_result}" ##############################
+  new_equation = concat_equation(equation_prepend, evaluated_result, equation_append)
   puts "New equation: #{new_equation}"
   return new_equation.to_s
 end
 ###################I don't think this is parsing correctly
 def pow_eval(equation)
   ####I'm sure this could be better
-  # num1 = equation.split('^').first.last
-  # num2 = equation.split('^').last.first
-  # ###############fix parsing
-  num1 = equation.split('^').first.strip[-1]
-  num2 = equation.split('^').last.strip[0]
-  equation_to_evaluate_result = exponent(float_or_int(num1, num2)).to_s
+  num1 = parse_equation(equation).split(';').first.strip[-1]
+  num2 = parse_equation(equation).split(';').last.strip[0]
+  evaluated_result = exponent(float_or_int(num1, num2)).to_s
 
   if equation.split('^').first.strip[0] != equation.split('^').first.strip[-1]
     ##closing range index = -3 to account for trialing space
@@ -109,13 +133,8 @@ def pow_eval(equation)
     ##starting index = 2 to account for leading space
     equation_append = equation.split('^').last[2..-1]
   end
-  if equation_prepend && equation_append
-    new_equation = equation_prepend + equation_to_evaluate_result.to_s + equation_append
-  elsif equation_prepend && !equation_append
-    new_equation = equation_prepend + equation_to_evaluate_result.to_s
-  elsif !equation_prepend && equation_append
-    new_equation = equation_to_evaluate_result.to_s + equation_append
-  end
+
+  new_equation = concat_equation(equation_prepend, evaluated_result, equation_prepend)
   puts "New equation: #{new_equation}"
   return new_equation.to_s
 end
@@ -128,10 +147,12 @@ end
 #MAIN PROGRAM
 # puts "Please input your equation to be evaluated (put spaces between all numbers and all operators). For example: '10 / (8 - 6) + 3'"
 # equation = gets.chomp
-equation = "10 / (8 - 6) + 3 ^ 2"
+# equation = "10 / (8 - 6) + 3 ^ 2"
 # equation = "10 / (8 - 6) + 3"
 # equation = "10 / (8 - 6)"
 # equation = "(10 * 2) / 4"
+equation = "10 / 8 - 6 * 3 "
+
 result = equation
 # until (result.to_i.nonzero?) || (result.class == Integer || result.class == Float) || result.to_s == "0"
 until !result.to_s.include?(' ')
