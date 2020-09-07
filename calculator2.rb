@@ -7,12 +7,11 @@
 # Roadmap: *integrate exponent calc into 'evaluate' method (instead of just 'pow_eval') *lots of cleaning up of code...
 
 #Methods
-
-# note: below function makes string replacements IN PLACE
 def get_input
   return input = input_check(operator_str_to_sym(gets.chomp))
 end
 
+#note: below function performs string replacements IN PLACE
 def operator_str_to_sym(equation)
   equation.downcase.gsub!("multiply", '*').gsub!("divide", '/').gsub!("add", '+').gsub!("subtract", '-').gsub!("mod", '%').gsub!("modulo", '%').gsub!("pow", '^').gsub!("exponent", '^').gsub!("**", '^')
 end
@@ -56,11 +55,11 @@ end
 
 def concat_equation(equation_prepend, evaluated_result, equation_append)
   if equation_prepend && equation_append
-    return new_equation = equation_prepend.to_s + evaluated_result.to_s + equation_append.to_s
+    return new_equation = equation_prepend.to_s + " " + evaluated_result.to_s + " " + equation_append.to_s
   elsif equation_prepend && !equation_append
-    return new_equation = equation_prepend.to_s + evaluated_result.to_s
+    return new_equation = equation_prepend.to_s + " " + evaluated_result.to_s
   elsif !equation_prepend && equation_append
-    return new_equation = evaluated_result.to_s + equation_append.to_s
+    return new_equation = evaluated_result.to_s + " " + equation_append.to_s
   end
 end
 
@@ -111,6 +110,7 @@ end
 def divide(array_of_two_nums)
   if array_of_two_nums[1] == "0"
     puts "ERROR: Cannot divide by zero. Program exiting."
+    exit
   else
     return result = array_of_two_nums[0] / array_of_two_nums[1]
   end
@@ -125,18 +125,15 @@ def subtract(array_of_two_nums)
 end
 
 def evaluate(equation)
-  # if equation.to_s.include?(' ')
   if equation.include?(' ')
-    num1, operator, num2 = equation.split(' ')
-    ###################################
-    print "num1: "
-    p num1
-    print "operator: "
-    p operator
-    print "num2: "
-    p num2
-    ###################################
-    # ##################################
+    num1, operator, num2 = equation.split
+    print "num1: " ############################
+    p num1 ########################################
+    print "operator: " ########################
+    p operator ####################################
+    print "num2: " ############################
+    p num2 ########################################
+    # #############################################
     #insert some until Mult div mod are gone, do not move to add/subtract
     if equation.match(/[\*\/\%]+/)
       case operator
@@ -147,8 +144,23 @@ def evaluate(equation)
       when '%'
         result = modulo(float_or_int(num1, num2))
       when '+', '-'
-        parsed_equation = equation.split(' ')
-        result = parsed_equation.last(parsed_equation.length - 2).join(' ') + " " + parsed_equation.first(2).join(' ')
+        next_equation = (equation.split(' ').drop(2).join(' ')).to_s
+        puts "next equation: "
+        p next_equation
+        next_operator = next_equation[next_equation =~ /[\*\/\+\-\^\%]+/]
+        puts "next operator: "
+        p next_operator
+        next_result = evaluate(next_equation).to_s
+        puts "Next result"############################################
+        p next_result#################################################
+        result = concat_equation(equation.split.first, operator, next_result).to_s###############################
+        if result.split(' ').length > 3
+          result = evaluate(result)
+        end
+        puts "Passed back equation: "#################################
+        p result #####################################################
+        # parsed_equation = parse_equation(equation, operator, /[\*\/\+\-\^\%]+/).split(';').join(' ')
+        # result = parsed_equation.last(parsed_equation.length - 2).join(' ') + " " + parsed_equation.first(2).join(' ')
       end
     else
       case operator
@@ -158,24 +170,7 @@ def evaluate(equation)
         result = subtract(float_or_int(num1, num2))
       end
     end
-  #   case operator
-  #   when '*', '/', '%'
-  #     if operator == '*'
-  #       result = multiply(float_or_int(num1, num2))
-  #     elsif operator == '/'
-  #       result = divide(float_or_int(num1, num2))
-  #     elsif operator == '%'
-  #       result = modulo(float_or_int(num1, num2))
-  #     end
-  #   when '+', '-'
-  #     if operator == '+'
-  #       result = add(float_or_int(num1, num2))
-  #     elsif operator == '-'
-  #       result = subtract(float_or_int(num1, num2))
-  #     end
-  #   end
-  #######This is where the while loop for length WAS so multiple terms would evaluted
-    #################################################
+   #################################################
     print "evaluation result: " ######################
     p result #################
  end
@@ -205,18 +200,28 @@ until !result.to_s.include?(' ')
     end
   end
   result = evaluate(result)
-  ########
+  ################################################################
   ############TRYING TO PASS BACK UNEVALUATED CODE (ADDITION/SUBTRACTION) BACK FOR EVALUATION)
-  ####################
-  equation_in_progress = equation.split(' ').drop(3).join(' ')
-  while !equation_in_progress.empty?
-    print "equation in progress: "###########################
-    p equation_in_progress ######################################
-    result = evaluate(concat_equation( "",result.to_s + " ", equation_in_progress))
-    #########PROBABLY HERE SOMEHWERE?
-    equation_in_progress = result.to_s.split(' ').drop(3).join(' ')
+  ################################################################
+  equation_in_progress = result.to_s + " " + equation.split(' ').drop(3).join(' ')
+  if equation_in_progress.split(' ').length > 3
+    next_operator = equation_in_progress.split(1)
+    if next_operator == '+' || next_operator == '-'
+
+    else
+
+    end
+    puts "***********************************************"
+    print "equation in progress: "############################
+    p equation_in_progress #######################################
+    puts "***********************************************"
+    result = evaluate(equation_in_progress)
+    # result = evaluate(concat_equation( "",result.to_s + " ", equation_in_progress))
+    #########PROBABLY HERE SOMEHWERE?#############################
+    equation_in_progress = result.split(' ').drop(2).join(' ')
     print "unevaluated equation: " ###########################
-    p equation_in_progress ##########################################kk
+    p equation_in_progress #######################################
+    puts "***********************************************"
   end
 end
 
