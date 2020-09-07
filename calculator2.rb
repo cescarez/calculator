@@ -4,7 +4,7 @@
 #Ada Assignment, "Calculator": https://github.com/Ada-C14/calculator
 #sources:
 # https://ruby-doc.org/core-2.7.1/Regexp.html
-# Roadmap: *integrate exponent calc into 'evaluate' method (instead of just 'pow_eval')
+# Roadmap: *integrate exponent calc into 'evaluate' method (instead of just 'pow_eval') *lots of cleaning up of code...
 
 #Methods
 
@@ -158,12 +158,12 @@ def evaluate(equation)
         result = subtract(float_or_int(num1, num2))
       end
     end
-    if parsed_equation.length > 3
-      equation_append = parsed_equation.drop(3).join(' ')
-      print "unevaluated equation"
-      p equation_append
-      evaluate(concat_equation( "",result.to_s + " ", equation_append))
-    end
+  # while parsed_equation.length > 3
+  #   equation_append = parsed_equation.drop(3).join(' ')
+  #   print "unevaluated equation"
+  #   p equation_append
+  #   evaluate(concat_equation( "",result.to_s + " ", equation_append))
+  # end
     #################################################
     print "evaluation result: " ######################
     p result #################
@@ -193,7 +193,6 @@ equation = "10 / 8.0 - 6 * 3 "
 result = equation
 
 until !result.to_s.include?(' ')
-
   if result.include?('(') || result.include?('^')
     while result.include?('(')
       result = parens_eval(result)
@@ -203,6 +202,15 @@ until !result.to_s.include?(' ')
     end
   end
   result = evaluate(result)
+  equation_in_progress = equation.split(' ').drop(3).join(' ')
+  while !equation_in_progress.empty?
+    print "equation in progress: "###########################
+    p equation_in_progress ######################################
+    result = evaluate(concat_equation( "",result.to_s + " ", equation_in_progress))
+    equation_in_progress = equation_in_progress.split(' ').drop(2).join(' ')
+    print "unevaluated equation: " ###########################
+    p equation_in_progress ##########################################kk
+  end
 end
 
 puts equation + " = " + result.to_s
