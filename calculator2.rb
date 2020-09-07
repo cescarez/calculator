@@ -125,13 +125,9 @@ def subtract(array_of_two_nums)
 end
 
 def evaluate(equation)
-  if equation.to_s.include?(' ')
-    # parsed_equation = parse_equation(equation, ' ', ' ').split(';')
-    parsed_equation = equation.split(' ')
-
-    num1 = parsed_equation[0]
-    operator = parsed_equation[1]
-    num2 = parsed_equation[2]
+  # if equation.to_s.include?(' ')
+  if equation.include?(' ')
+    num1, operator, num2 = equation.split(' ')
     ###################################
     print "num1: "
     p num1
@@ -150,6 +146,9 @@ def evaluate(equation)
         result = divide(float_or_int(num1, num2))
       when '%'
         result = modulo(float_or_int(num1, num2))
+      when '+', '-'
+        parsed_equation = equation.split(' ')
+        result = parsed_equation.last(parsed_equation.length - 2).join(' ') + " " + parsed_equation.first(2).join(' ')
       end
     else
       case operator
@@ -183,13 +182,6 @@ def evaluate(equation)
   return result
 end
 
-
-
-
-
-
-
-
 #######################################################################
 #MAIN PROGRAM
 # puts "Please input your equation to be evaluated (put spaces between all numbers and all operators). For example: '10 / (8 - 6) + 3'"
@@ -201,8 +193,7 @@ end
 # equation = "10 / (8 - 6)"
 # equation = "(10 * 2) / 4"
 equation = "10 / 8.0 - 6 * 3 "
-
-result = equation
+result = equation.dup
 
 until !result.to_s.include?(' ')
   if result.include?('(') || result.include?('^')
@@ -214,12 +205,16 @@ until !result.to_s.include?(' ')
     end
   end
   result = evaluate(result)
+  ########
+  ############TRYING TO PASS BACK UNEVALUATED CODE (ADDITION/SUBTRACTION) BACK FOR EVALUATION)
+  ####################
   equation_in_progress = equation.split(' ').drop(3).join(' ')
   while !equation_in_progress.empty?
     print "equation in progress: "###########################
     p equation_in_progress ######################################
     result = evaluate(concat_equation( "",result.to_s + " ", equation_in_progress))
-    equation_in_progress = equation_in_progress.split(' ').drop(2).join(' ')
+    #########PROBABLY HERE SOMEHWERE?
+    equation_in_progress = result.to_s.split(' ').drop(3).join(' ')
     print "unevaluated equation: " ###########################
     p equation_in_progress ##########################################kk
   end
