@@ -143,24 +143,6 @@ def evaluate(equation)
         result = divide(float_or_int(num1, num2))
       when '%'
         result = modulo(float_or_int(num1, num2))
-      when '+', '-'
-        next_equation = (equation.split(' ').drop(2).join(' ')).to_s
-        puts "next equation: "
-        p next_equation
-        next_operator = next_equation[next_equation =~ /[\*\/\+\-\^\%]+/]
-        puts "next operator: "
-        p next_operator
-        next_result = evaluate(next_equation).to_s
-        puts "Next result"############################################
-        p next_result#################################################
-        result = concat_equation(equation.split.first, operator, next_result).to_s###############################
-        if result.split(' ').length > 3
-          result = evaluate(result)
-        end
-        puts "Passed back equation: "#################################
-        p result #####################################################
-        # parsed_equation = parse_equation(equation, operator, /[\*\/\+\-\^\%]+/).split(';').join(' ')
-        # result = parsed_equation.last(parsed_equation.length - 2).join(' ') + " " + parsed_equation.first(2).join(' ')
       end
     else
       case operator
@@ -204,21 +186,32 @@ until !result.to_s.include?(' ')
   ############TRYING TO PASS BACK UNEVALUATED CODE (ADDITION/SUBTRACTION) BACK FOR EVALUATION)
   ################################################################
   equation_in_progress = result.to_s + " " + equation.split(' ').drop(3).join(' ')
-  if equation_in_progress.split(' ').length > 3
-    next_operator = equation_in_progress.split(1)
-    if next_operator == '+' || next_operator == '-'
-
-    else
-
+  while !equation_in_progress.empty?
+    operator = equation_in_progress.split(' ')[1]
+    if operator == '+' || operator == '-'
+      next_equation = (equation_in_progress.split(' ').drop(2).join(' ')).to_s
+      puts "next equation: "
+      p next_equation
+      next_operator = next_equation[next_equation =~ /[\*\/\+\-\^\%]+/]
+      puts "next operator: "
+      p next_operator
+      next_result = evaluate(next_equation).to_s
+      puts "Next result"############################################
+      p next_result#################################################
+      equation_in_progress = concat_equation(equation_in_progress.split.first, operator, next_result).to_s###############################
+      puts "Passed back equation: "#################################
+      p equation_in_progress #####################################################
     end
+
     puts "***********************************************"
     print "equation in progress: "############################
     p equation_in_progress #######################################
     puts "***********************************************"
+
     result = evaluate(equation_in_progress)
     # result = evaluate(concat_equation( "",result.to_s + " ", equation_in_progress))
     #########PROBABLY HERE SOMEHWERE?#############################
-    equation_in_progress = result.split(' ').drop(2).join(' ')
+    equation_in_progress = result.to_s.split(' ').drop(2).join(' ')
     print "unevaluated equation: " ###########################
     p equation_in_progress #######################################
     puts "***********************************************"
