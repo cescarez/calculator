@@ -59,16 +59,20 @@ def evaluate(equation)
     print "num2: "
     p num2
     ###################################
+    while
     case operator
-    when '*', 'multiply'
-      result = multiply(float_or_int(num1, num2))
-    when '/', 'divide'
-      result = divide(float_or_int(num1, num2))
+    when '*', 'multiply', '/', 'divide'
+      case operator
+      when '*', 'multiply'
+        result = multiply(float_or_int(num1, num2))
+      when '/', 'divide'
+        result = divide(float_or_int(num1, num2))
     when '+', 'add'
       result = add(float_or_int(num1, num2))
     when '-', 'subtract'
       result = subtract(float_or_int(num1, num2))
     end
+    #################################################
     puts equation.split(' ').length > 3 ############################
     while equation.split(' ').length > 3
       evaluate(num1, num2)
