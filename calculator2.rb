@@ -142,28 +142,40 @@ def evaluate(equation)
     ###################################
     # ##################################
     #insert some until Mult div mod are gone, do not move to add/subtract
-    case operator
-    when '*', '/', '%'
-      if operator == '*'
+    if equation.match(/[\*\/\%]+/)
+      case operator
+      when '*'
         result = multiply(float_or_int(num1, num2))
-      elsif operator == '/'
+      when '/'
         result = divide(float_or_int(num1, num2))
-      elsif operator == '%'
+      when '%'
         result = modulo(float_or_int(num1, num2))
       end
-    when '+', '-'
-      if operator == '+'
+    else
+      case operator
+      when '+'
         result = add(float_or_int(num1, num2))
-      elsif operator == '-'
+      when '-'
         result = subtract(float_or_int(num1, num2))
       end
     end
-  # while parsed_equation.length > 3
-  #   equation_append = parsed_equation.drop(3).join(' ')
-  #   print "unevaluated equation"
-  #   p equation_append
-  #   evaluate(concat_equation( "",result.to_s + " ", equation_append))
-  # end
+  #   case operator
+  #   when '*', '/', '%'
+  #     if operator == '*'
+  #       result = multiply(float_or_int(num1, num2))
+  #     elsif operator == '/'
+  #       result = divide(float_or_int(num1, num2))
+  #     elsif operator == '%'
+  #       result = modulo(float_or_int(num1, num2))
+  #     end
+  #   when '+', '-'
+  #     if operator == '+'
+  #       result = add(float_or_int(num1, num2))
+  #     elsif operator == '-'
+  #       result = subtract(float_or_int(num1, num2))
+  #     end
+  #   end
+  #######This is where the while loop for length WAS so multiple terms would evaluted
     #################################################
     print "evaluation result: " ######################
     p result #################
