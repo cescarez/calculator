@@ -3,32 +3,49 @@
 #Ada Developer's Academy C14
 #Ada Assignment, "Calculator": https://github.com/Ada-C14/calculator
 #sources:
-
+# https://ruby-doc.org/core-2.7.1/Regexp.html
+# Roadmap: *integrate exponent calc into 'evaluate' method (instead of just 'pow_eval')
 
 #Methods
 
-#operator methods
-def exponent(array_of_two_nums)
-  return result = array_of_two_nums[0] ** array_of_two_nums[1]
+# note: below function makes string replacements IN PLACE
+def get_input
+  return input = input_check(operator_str_to_sym(gets.chomp))
 end
 
-def multiply(array_of_two_nums)
-  return result = array_of_two_nums[0] * array_of_two_nums[1]
+def operator_str_to_sym(equation)
+  equation.downcase.gsub!("multiply", '*').gsub!("divide", '/').gsub!("add", '+').gsub!("subtract", '-').gsub!("mod", '%').gsub!("modulo", '%').gsub!("pow", '^').gsub!("exponent", '^').gsub!("**", '^')
 end
 
-def divide(array_of_two_nums)
-  return result = array_of_two_nums[0] / array_of_two_nums[1]
+def input_check(equation)
+  until !equation.match(/d{2}/) && !equation.match(/[\*\/\+\-\^\%]+/)
+    if !equation.match(/d{2}/)
+      puts "Please enter at least two numbers to perform calculation(s)"
+    end
+    if !equation.match(/[\*\/\+\-\^\%]+/)
+    puts "Equation needs to include at least one operator:
+            'multiply' OR '*'
+            'divide' OR '/'
+            'add' OR '+'
+            'subtract' OR '-'
+            'modulo' OR '%'
+            'exponent' OR '^'"
+    end
+    equation = get_input
+  end
+  return equation
 end
 
-def add(array_of_two_nums)
-  return result = array_of_two_nums[0] + array_of_two_nums[1]
+def parse_equation(equation, prepend_char_delimiter, append_char_delimiter)
+  if equation.split(prepend_char_delimiter).first
+    equation_prepend, equation_to_evaluate = equation.split(prepend_char_delimiter)
+  end
+  if equation.split(append_char_delimiter).last
+    equation_to_evaluate, equation_append = equation_to_evaluate.split(append_char_delimiter)
+  end
+  return equation_prepend.to_s + ";" + equation_to_evaluate.to_s + ";" + equation_append.to_s
 end
 
-def subtract(array_of_two_nums)
-  return result = array_of_two_nums[0] - array_of_two_nums[1]
-end
-
-#other program methods
 def float_or_int(num1, num2)
   if num1.include?('.') || num2.include?('.')
     return num1.to_f, num2.to_f
@@ -37,82 +54,17 @@ def float_or_int(num1, num2)
   end
 end
 
-def evaluate(equation)
-  if equation.to_s.include?(' ')
-    num1, operator, num2 = parse_equation(equation, ' ', ' ')
-    if num1.strip.class != Integer
-
-    end
-    if operator.strip.length > 1
-
-    end
-    if num2.strip.length > 1
-
-    end
-
-    num1, operator, num2 = equation.split(' ')
-    ##########need to write recursive function to call evaluation for longer equations
-    print "num1: "
-    p num1
-    print "operator: "
-    p operator
-    print "num2: "
-    p num2
-    ###################################
-    while
-    case operator
-    when '*', 'multiply', '/', 'divide'
-      case operator
-      when '*', 'multiply'
-        result = multiply(float_or_int(num1, num2))
-      when '/', 'divide'
-        result = divide(float_or_int(num1, num2))
-    when '+', 'add'
-      result = add(float_or_int(num1, num2))
-    when '-', 'subtract'
-      result = subtract(float_or_int(num1, num2))
-    end
-    #################################################
-    puts equation.split(' ').length > 3 ############################
-    while equation.split(' ').length > 3
-      evaluate(num1, num2)
-    end
- end
-  print "evaluation result: " ######################
-  p result #################
-  # p result.class
-  # p result.to_i == result
-  # p result.to_i == 100
-  # p result.to_i.nonzero?
-  # p (result == Integer || result.class == Float)
-  # # puts (result.to_i == Integer || result.to_f.class == Float)
-  # p result.to_s == "0"
-  return result
-end
-################NEED TO DRY PARENS_EVAL AND POW_EVAL METHODS
-def parse_equation(equation, prepend_char_delimiter, append_char_delimiter)
-  if equation.split(prepend_char_delimiter).first
-    equation_prepend, equation_to_evaluate = equation.split(prepend_char_delimiter)
-  end
-  if equation.split(append_char_delimiter).last
-    equation_to_evaluate, equation_append = equation_to_evaluate.split(append_char_delimiter)
-  end
-  return equation_prepend + ";" + equation_to_evaluate + ";" + equation_append
-end
-
 def concat_equation(equation_prepend, evaluated_result, equation_append)
-  p equation_prepend
-  p evaluated_result
-  p equation_append
   if equation_prepend && equation_append
-    return new_equation = equation_prepend + evaluated_result + equation_append
+    return new_equation = equation_prepend.to_s + evaluated_result.to_s + equation_append.to_s
   elsif equation_prepend && !equation_append
-    return new_equation = equation_prepend + evaluated_result
+    return new_equation = equation_prepend.to_s + evaluated_result.to_s
   elsif !equation_prepend && equation_append
-    return new_equation = evaluated_result + equation_append
+    return new_equation = evaluated_result.to_s + equation_append.to_s
   end
 end
 
+#operator methods
 def parens_eval(equation)
   equation_prepend, equation_to_be_evaluated, equation_append = parse_equation(equation, '(', ')').split(';')
   puts "equation to be evaluated: #{equation_to_be_evaluated}" ##############################
@@ -122,7 +74,8 @@ def parens_eval(equation)
   puts "New equation: #{new_equation}"
   return new_equation.to_s
 end
-###################I don't think this is parsing correctly
+
+################NEED TO DRY POW_EVAL METHOD
 def pow_eval(equation)
   ####I'm sure this could be better
   num1 = parse_equation(equation).split(';').first.strip[-1]
@@ -143,6 +96,84 @@ def pow_eval(equation)
   return new_equation.to_s
 end
 
+def exponent(array_of_two_nums)
+  return result = array_of_two_nums[0] ** array_of_two_nums[1]
+end
+
+def modulo(array_of_two_nums)
+  return result = array_of_two_nums[0] % array_of_two_nums[1]
+end
+
+def multiply(array_of_two_nums)
+  return result = array_of_two_nums[0] * array_of_two_nums[1]
+end
+
+def divide(array_of_two_nums)
+  if array_of_two_nums[1] == "0"
+    puts "ERROR: Cannot divide by zero. Program exiting."
+  else
+    return result = array_of_two_nums[0] / array_of_two_nums[1]
+  end
+end
+
+def add(array_of_two_nums)
+  return result = array_of_two_nums[0] + array_of_two_nums[1]
+end
+
+def subtract(array_of_two_nums)
+  return result = array_of_two_nums[0] - array_of_two_nums[1]
+end
+
+def evaluate(equation)
+  if equation.to_s.include?(' ')
+    # parsed_equation = parse_equation(equation, ' ', ' ').split(';')
+    parsed_equation = equation.split(' ')
+
+    num1 = parsed_equation[0]
+    operator = parsed_equation[1]
+    num2 = parsed_equation[2]
+    ###################################
+    print "num1: "
+    p num1
+    print "operator: "
+    p operator
+    print "num2: "
+    p num2
+    ###################################
+    # ##################################
+    #insert some until Mult div mod are gone, do not move to add/subtract
+    case operator
+    when '*', '/', '%'
+      if operator == '*'
+        result = multiply(float_or_int(num1, num2))
+      elsif operator == '/'
+        result = divide(float_or_int(num1, num2))
+      elsif operator == '%'
+        result = modulo(float_or_int(num1, num2))
+      end
+    when '+', '-'
+      if operator == '+'
+        result = add(float_or_int(num1, num2))
+      elsif operator == '-'
+        result = subtract(float_or_int(num1, num2))
+      end
+    end
+    if parsed_equation.length > 3
+      equation_append = parsed_equation.drop(3).join(' ')
+      print "unevaluated equation"
+      p equation_append
+      evaluate(concat_equation( "",result.to_s + " ", equation_append))
+    end
+    #################################################
+    print "evaluation result: " ######################
+    p result #################
+ end
+  return result
+end
+
+
+
+
 
 
 
@@ -150,16 +181,19 @@ end
 #######################################################################
 #MAIN PROGRAM
 # puts "Please input your equation to be evaluated (put spaces between all numbers and all operators). For example: '10 / (8 - 6) + 3'"
-# equation = gets.chomp
+# until equation
+  # equation = get_input
+#end
 # equation = "10 / (8 - 6) + 3 ^ 2"
 # equation = "10 / (8 - 6) + 3"
 # equation = "10 / (8 - 6)"
 # equation = "(10 * 2) / 4"
-equation = "10 / 8 - 6 * 3 "
+equation = "10 / 8.0 - 6 * 3 "
 
 result = equation
-# until (result.to_i.nonzero?) || (result.class == Integer || result.class == Float) || result.to_s == "0"
+
 until !result.to_s.include?(' ')
+
   if result.include?('(') || result.include?('^')
     while result.include?('(')
       result = parens_eval(result)
